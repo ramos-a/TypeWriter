@@ -1,1 +1,1 @@
-# TypeWriter
+# TypeWriter: a writer's app
