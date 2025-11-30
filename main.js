@@ -4,8 +4,8 @@ const fs = require('fs');
 
 if (require('electron-squirrel-startup')) app.quit();
 
-// vault path
-const vault_path = path.join(app.getPath('documents'), 'TypeWriter');
+// default path
+const default_path = app.getPath('documents');
 
 const icon_path = path.join(__dirname, 'images', 'icon.png');
 
@@ -33,12 +33,9 @@ function createWindow() {
       })
       return false;
     }
-
-    if (!fs.existsSync(vault_path)) {
-      fs.mkdirSync(vault_path);
-    }
     
-    let filePath =  path.join(vault_path, `${data.title}.md`);
+    const base_path = dialog.showOpenDialog(window=default_path, {properties: ['openDirectory'], default_path:default_path})
+    let filePath =  path.join(base_path, `${data.title}.md`);
     if (fs.existsSync(filePath)) {
       const { response } = await dialog.showMessageBox(null, {
         type: 'question',
@@ -54,7 +51,7 @@ function createWindow() {
         fs.unlinkSync(filePath);
       } else if (response == 1) {
         let date = new Date().toUTCString().replaceAll(':', '-')
-        filePath = path.join(vault_path, `${data.title} (${date}).md`);
+        filePath = path.join(base_path, `${data.title} (${date}).md`);
       } else if (response == 2) {
         return false;
       }
@@ -68,7 +65,7 @@ function createWindow() {
       icon: icon_path,
     })
 		return { success: true };
-	})
+    })
 
   ipcMain.handle('checkDeleteAll', async (req) => {
     const { response } = await dialog.showMessageBox(null, {
